@@ -26,12 +26,10 @@ app.post('/api/chat', async (req, res) => {
                 content: m.text
             }))
         ];
-
-        // 🔥 BURASI DEĞİŞTİ! Model llama-3.1-8b-instant, tools parametresi eklendi.
         const response = await axios.post(
             'https://api.groq.com/openai/v1/chat/completions',
             {
-                model: 'llama-3.3-70b-versatile',
+                model: 'groq/compound',
                 messages: formattedMessages,
                 max_tokens: 4096,
                 tools: [ // 🛠️ Web araması için tools parametresi
