@@ -36,7 +36,7 @@ app.post('/api/chat', async (req, res) => {
         const response = await axios.post(
             'https://api.groq.com/openai/v1/chat/completions',
             {
-                model: 'llama-3.1-70b-versatile',
+                model: 'llama-3.3-70b-versatile',
                 messages: formattedMessages,
                 max_tokens: 4096
             },
