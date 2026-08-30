@@ -9,15 +9,22 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Ana sohbet endpoint'i
 app.post('/api/chat', async (req, res) => {
     try {
         const { messages, userProfile } = req.body;
         
-        // Sistem prompt'u
-        const systemPrompt = `Senin adın ORYN. Kullanıcı profili: ${userProfile || 'Gurur'}`;
+        // GELEN VERİYİ KONTROL ET
+        console.log('Gelen mesaj:', messages);
         
-        // Mesajları formatla
+        if (!messages || !Array.isArray(messages) || messages.length === 0) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Mesaj göndermedin!' 
+            });
+        }
+
+        const systemPrompt = `Senin adın ORYN. 13 yaşındaki Gurur ile konuşuyorsun. Kullanıcı profili: ${userProfile || 'Gurur'}`;
+        
         const formattedMessages = [
             { role: 'system', content: systemPrompt },
             ...messages.map(m => ({
@@ -26,7 +33,6 @@ app.post('/api/chat', async (req, res) => {
             }))
         ];
 
-        // Groq API'ye istek
         const response = await axios.post(
             'https://api.groq.com/openai/v1/chat/completions',
             {
@@ -42,19 +48,18 @@ app.post('/api/chat', async (req, res) => {
             }
         );
 
-        const reply = response.data.choices?.[0]?.message?.content || 'Yanıt alınamadı.';
+        const reply = response.data.choices?.[0]?.message?.content || 'Üzgünüm, cevap veremedim.';
         res.json({ success: true, reply: reply });
 
     } catch (error) {
-        console.error('Hata:', error.message);
+        console.error('Backend hatası:', error.response?.data || error.message);
         res.status(500).json({ 
             success: false, 
-            error: error.message 
+            error: error.response?.data?.error?.message || 'Bir hata oluştu.'
         });
     }
 });
 
-// Sağlık kontrolü
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ORYN çalışıyor! 🚀' });
 });
